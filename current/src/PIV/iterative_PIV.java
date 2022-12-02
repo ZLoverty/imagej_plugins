@@ -33,13 +33,13 @@ public class iterative_PIV implements PlugInFilter {
     int nx, ny;			//number of vector in horizontal dir. and verticle dir.
     double[][] PIVdata1, PIVdata, PIVdata0;         //working PIV data
     double[][][] PIV0;          //PIV data from the previous iteration
-    
+
     int action = 3;
     double noiseNMT1 = 0.2,thrNMT1 = 5, c1DMT = 3, c2DMT = 1;   //parameters for PIV postprocessing
-    
+
     double sdR, meanR;          //pixel statistics of the correlation result image
     double max0 = 0.0d;         //estimation of the maximum displacement from either preloaded PIV0 or the first pass PIV1
- 
+
 
     public int setup(String arg, ImagePlus imp) {
         this.arg = arg;
@@ -85,7 +85,8 @@ public class iterative_PIV implements PlugInFilter {
         }
 
         /*Log PIV parameters*/
-        IJ.log("PIV paramters: ");
+        /* Suppress log to avoid spamming console window
+        IJ.log("PIV parameters: "); //fix a typo
         IJ.log("pass1: Interrogation window="+winS1+" search window="+sW1+" vector spacing="+vecS1);
         IJ.log("pass2: Interrogation window="+winS2+" search window="+sW2+" vector spacing="+vecS2);
         IJ.log("pass3: Interrogation window="+winS3+" search window="+sW3+" vector spacing="+vecS3);
@@ -94,7 +95,7 @@ public class iterative_PIV implements PlugInFilter {
         }else if(chkPeakA){
             IJ.log("Using emperical parameters for peak check");
         }
-
+        */
         /*Start the PIV iteration*/
         for (int np= 1; np <=nPass ; np++) {
 
@@ -182,7 +183,7 @@ public class iterative_PIV implements PlugInFilter {
         }else{
 	    //In batch mode but without post-processing --> Do Nothing
 	}
-        
+
         imp.changes = false;
         IJ.freeMemory();
 
@@ -273,7 +274,7 @@ public class iterative_PIV implements PlugInFilter {
 
 	return _PIVa;
     }
-	
+
     private void plotPIV(double[][] PIV, String title, boolean scaleGraph) {
 
         ImageProcessor ip = new ColorProcessor(width, height);
@@ -286,12 +287,12 @@ public class iterative_PIV implements PlugInFilter {
         if(max0==0.0d){
             sc = 24/max;
             max0 = max;
-        // otherwise, use the max0 (the maximum displacement from the very first PIV pass) to set the plot scale, and use it for all iteration so that every PIV plot will have the same scale. 
+        // otherwise, use the max0 (the maximum displacement from the very first PIV pass) to set the plot scale, and use it for all iteration so that every PIV plot will have the same scale.
         }else{
             sc = 24/max0;
             plot_.colorMax = max0;
         }
-        
+
         plot_.loadLut("S_Pet");
         plot_.drawVectors(ip, dim, PIV, mag, sc, plot_.colors);
         ImagePlus vp = new ImagePlus(title, ip);
@@ -304,9 +305,9 @@ public class iterative_PIV implements PlugInFilter {
             FileSaver fs = new FileSaver(vp);
             fs.saveAsTiff(dir + title + "_vPlot.tif");
         }
-        
+
     }
-    
+
     /*The dialog for PIV Advanced Mode*/
     private boolean getParamsA() {
 
@@ -327,7 +328,7 @@ public class iterative_PIV implements PlugInFilter {
             vecS1 = 64;
         }
         gd.addNumericField("VS1 :Vector spacing", vecS1, 0);
-        
+
         gd.addMessage("-----------------------");
         gd.addMessage("2nd pass PIV parameters: (set window size to zero to do only 1pass PIV)");
         if (winS2 == 0) {
@@ -423,7 +424,7 @@ public class iterative_PIV implements PlugInFilter {
 
             if(load){
                 OpenDialog od = new OpenDialog("Select the PIV data", "");
-                if (od.getDirectory() == null || od.getFileName() == null){ 
+                if (od.getDirectory() == null || od.getFileName() == null){
                     return false;
                 }
                 piv0Path = od.getDirectory();
@@ -435,7 +436,7 @@ public class iterative_PIV implements PlugInFilter {
 
         return true;
     }
-	
+
     /*The dialog for Basic PIV mode*/
     private boolean getParamsB() {
 
@@ -515,9 +516,9 @@ public class iterative_PIV implements PlugInFilter {
         }
 
         return true;
-    }    
-    
-    /*The dialog for Cross-correlation PIV */    
+    }
+
+    /*The dialog for Cross-correlation PIV */
     private boolean getParamsC() {
 
         GenericDialog gd = new GenericDialog("Iterative PIV (Cross-Correlation)");
@@ -571,7 +572,7 @@ public class iterative_PIV implements PlugInFilter {
 
         return true;
     }
-    
+
     /*The dialog for debugging PIV */
     private boolean getParamsD() {
 
@@ -591,7 +592,7 @@ public class iterative_PIV implements PlugInFilter {
             vecS1 = 64;
         }
         gd.addNumericField("VS1 :Vector spacing", vecS1, 0);
-        
+
         gd.addMessage("-----------------------");
         gd.addMessage("2nd pass PIV parameters: (set window size to zero to do only 1pass PIV)");
         if (winS2 == 0) {
@@ -770,7 +771,7 @@ public class iterative_PIV implements PlugInFilter {
                 return false;
             }
         }
-        
+
 		//if(!xc) cvMatchTemplate.init();  //initialize the javacv library
 
         return true;
@@ -886,7 +887,7 @@ public class iterative_PIV implements PlugInFilter {
                 } else {
                     edge = true;
                 }
-//                    
+//
 //                }else{
 //                    edge = edgeUser;
 //                }
@@ -942,10 +943,10 @@ public class iterative_PIV implements PlugInFilter {
                      *in order to avoid negative pixel value which caused problem for gaussian peak fitting.
                      *The compromise of accuracy of subpixel peak fitting needs to be checked.
                      */
-                    
+
                     int[] xyOri = {xOri, yOri};
                     int[] curPos = {(int) vec[j * nx + i][0], (int) vec[j * nx + i][1]};
-                    
+
                     result16 = result.convertToShort(true);
 
                     if (!firstPass) {
@@ -993,12 +994,12 @@ public class iterative_PIV implements PlugInFilter {
                                 dxdyG2 = dxdyG;
                                 dx1 = dxdyG[0] - xOri;
                                 dy1 = dxdyG[1] - yOri;
-                               
+
                                	if (xc){
                                		dx1 += shiftX;
                                		dy1 += shiftY;
                                	}
-                               
+
                                 dx2 = dx1;
                                 dy2 = dy1;
                                 mag1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
@@ -1025,14 +1026,14 @@ public class iterative_PIV implements PlugInFilter {
                                 dy1 = dxdyG[1] - yOri;
                                 dx2 = dxdyG2[0] - xOri;
                                 dy2 = dxdyG2[1] - yOri;
-                                
+
                                 if(xc){
                                 	dx1 += shiftX;
                                		dy1 += shiftY;
                                		dx2 += shiftX;
                                		dy2 += shiftY;
                                 }
-                                
+
                                 mag1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
                                 mag2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
                                 ang1 = checkVector(dx1, dy1, mag1, dx0, dy0, mag0);
@@ -1076,7 +1077,7 @@ public class iterative_PIV implements PlugInFilter {
                         }
 
                         switch (c) {
-                            
+
                             // Use the second highest correlation peak
                             case 0:
                                 vec[j * nx + i][2] = dx2;
@@ -1117,24 +1118,24 @@ public class iterative_PIV implements PlugInFilter {
                                 vec[j * nx + i][10] = ang2[0];
                                 vec[j * nx + i][11] = p2;
                                 vec[j * nx + i][15] = -1;           //flag it as invalid
-                                invCount++;                                
+                                invCount++;
                                 break;
                         }
 
                     } else {   // for the first PIV iteration (without information from previous PIV)
-                        
+
                         //debug
                         if (db) {
                             IJ.log("position: " + curPos[0] + "," + curPos[1]);
                             IJ.log("dx0, dy0: " + dx0 + "," + dy0);
                             IJ.log("xyOri: " + xyOri[0] + "," + xyOri[1]);
-                            
+
                         }
-                        
+
                         dxdy = findMaxA(result, edge);
-                       
+
 //                        IJ.log("dxdy[0], dxdy[1]:"+dxdy[0]+","+dxdy[1]);
-                        
+
                         if(dxdy[0]==-999 & dxdy [1] == -999){
                             dxdyG = new double[] {-999,-999};
                             dxdyG2 = new double[] {-999,-999};
@@ -1145,7 +1146,7 @@ public class iterative_PIV implements PlugInFilter {
                             mag1 = 0;
                             mag2 = 0;
                         }else{
-                            
+
                             dxdyG = gaussianPeakFit(result16, dxdy[0], dxdy[1]);
                             dxdyG2 = gaussianPeakFit(result16, dxdy[2], dxdy[3]);
 //                        if (Double.isNaN(dxdyG[0])) {
@@ -1163,19 +1164,19 @@ public class iterative_PIV implements PlugInFilter {
 //
 //                            IJ.log("dx1, dy1: " + dx1 + "," + dy1);
 //                            IJ.log("mag1: " + mag1);
-                            
-                        }                 
+
+                        }
 
                         //Mark invalid vector by gaussianPeakFit, adopted from JPiv package (http://www.jpiv.vennemann-online.de/)
                         int rW = result.getWidth();
                         int rH = result.getHeight();
                         if (dxdy[0] == -999 && dxdy[1] == -999){    //invalid displacement due to no peak found
-                            vec[j * nx + i][2] = dx1;				
+                            vec[j * nx + i][2] = dx1;
                             vec[j * nx + i][3] = dy1;
                             vec[j * nx + i][4] = mag1;
                             vec[j * nx + i][5] = 0;
                             vec[j * nx + i][6] = -1;                //no peak found, set correlation value to -1
-                            vec[j * nx + i][7] = dx2;				
+                            vec[j * nx + i][7] = dx2;
                             vec[j * nx + i][8] = dy2;
                             vec[j * nx + i][9] = mag2;
                             vec[j * nx + i][10] = 0;                //no peak found, set correlation value to -1
@@ -1210,9 +1211,10 @@ public class iterative_PIV implements PlugInFilter {
                 }
             }
         }
-
+        /*
         IJ.log("#interpolated vector / #total vector = " + invCount + "/" + nx * ny);
         IJ.log("#vector with corr. value lower than threshold / #total vector = " + thrCount + "/" + nx * ny);
+        */
         return vec;
     }
 
@@ -1577,7 +1579,7 @@ public class iterative_PIV implements PlugInFilter {
             if (ip.getPixel(x - 1, y) != 0) {
                 a = Math.log(ip.getPixel(x - 1, y));
             }
-            
+
             if (ip.getPixel(x, y) != 0) {
                 b = Math.log(ip.getPixel(x, y));
             }
@@ -1680,7 +1682,7 @@ public class iterative_PIV implements PlugInFilter {
         return pivData;
     }
 
-    /** 
+    /**
      * Modified from the JPiv package (http://www.jpiv.vennemann-online.de/)
      * Gets the neigbhouring values of a vector component.
      * The values are returned in ascending index order.
@@ -1723,7 +1725,7 @@ public class iterative_PIV implements PlugInFilter {
             numOfNb++;
             nb[numOfNb - 1] = pivData[n][col];
         }
-        
+
         n = cnt + 1;
         if (j + 1 < nx
                 && (pivData[n][_pos] != -1 )) {
@@ -2039,5 +2041,5 @@ public class iterative_PIV implements PlugInFilter {
 
         return result;
     }
- 
+
 }
